@@ -178,36 +178,36 @@ const debts = amounts.map(({ amount, installments, recursive }) => {
   return new Debt(amount, installments);
 });
 
+const debtsByMonths = {
+  "Julio 2023": debts.map((debt) => {
+    debt.periodName = "Julio 2023";
+    return debt;
+  }),
+  "Agosto 2023": august.map((debt) => {
+    debt.periodName = "Agosto 2023";
+    return debt;
+  }),
+  "Septiembre 2023": september.map((debt) => {
+    debt.periodName = "Septiembre 2023";
+    return debt;
+  }),
+};
+
+const setByMonth = (debt) => {
+  if (!debtsByMonths[debt.periodName]) {
+    debtsByMonths[debt.periodName] = [];
+  }
+  debtsByMonths[debt.periodName].push(debt);
+};
+const getByMonth = (monthLabel) => {
+  if (debtsByMonths[monthLabel]) {
+    return debtsByMonths[monthLabel];
+  }
+  return [];
+};
+
 function App() {
   console.log("App render");
-
-  const debtsByMonths = {
-    "Julio 2023": debts.map((debt) => {
-      debt.periodName = "Julio 2023";
-      return debt;
-    }),
-    "Agosto 2023": august.map((debt) => {
-      debt.periodName = "Agosto 2023";
-      return debt;
-    }),
-    "Septiembre 2023": september.map((debt) => {
-      debt.periodName = "Septiembre 2023";
-      return debt;
-    }),
-  };
-
-  const setByMonth = (debt) => {
-    if (!debtsByMonths[debt.periodName]) {
-      debtsByMonths[debt.periodName] = [];
-    }
-    debtsByMonths[debt.periodName].push(debt);
-  };
-  const getByMonth = (monthLabel) => {
-    if (debtsByMonths[monthLabel]) {
-      return debtsByMonths[monthLabel];
-    }
-    return [];
-  };
   const [state, setState] = useState();
   useEffect(() => {
     fetch("https://api.bluelytics.com.ar/v2/latest")
@@ -241,15 +241,13 @@ function App() {
       <header className="App-header">
         {months.map((month) => {
           let totalByMonth = 0;
-          const rows2 = getByMonth(month).map((debt, index) => {
+          const rows2 = getByMonth(month).map((debt) => {
             totalByMonth += debt.amount;
             debt.setNext(setByMonth);
-            return debt.amount > 0 ? (
-              <DebtCard key={index} debt={debt} />
-            ) : null;
+            return debt.amount > 0 ? <DebtCard debt={debt} /> : null;
           });
           return (
-            <div key={month}>
+            <div>
               <h2>{month}</h2>
               <div
                 style={{
