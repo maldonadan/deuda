@@ -164,7 +164,6 @@ const debts = amounts.map(({ amount, installments, recursive }) => {
 function App() {
   const { asUSD, txUSD } = useCurrencyConversion();
   const { formatCurrency } = useCurrencyFormatter();
-  console.log(formatCurrency);
   const debtsByMonths = {
     "Julio 2023": debts.map((debt) => {
       debt.periodName = "Julio 2023";
@@ -235,14 +234,14 @@ function App() {
               <div
                 style={{
                   display: "flex",
+                  justifyContent: "flex-end",
                   gap: 10,
                   fontWeight: 700,
                   fontSize: 24,
                   marginTop: 10,
-                  flexDirection: "column",
                 }}
               >
-                <div>Pesos: {formatCurrency(totalByMonth, "ARS")}</div>
+                <div>ARS: {formatCurrency(totalByMonth, "ARS")}</div>
                 <div>
                   {asUSD(
                     totalByMonth,
