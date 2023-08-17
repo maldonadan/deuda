@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
 import "./App.css";
 import Debt from "./Debt";
 import RecursiveDebt from "./RecursiveDebt";
+import { useCurrencyConversion } from "./useCurrencyConversion";
+import { useCurrencyFormatter } from "./useCurrencyFormatter";
 
 const amounts = [
   {
@@ -112,24 +113,6 @@ const amounts = [
   },
 ];
 
-const idioma = "es-AR";
-
-const options = {
-  style: "currency",
-  currency: "ARS",
-  currencyDisplay: "symbol",
-};
-const idiomaUSD = "en-EU";
-
-const optionsUSD = {
-  style: "currency",
-  currency: "USD",
-  currencyDisplay: "symbol",
-};
-
-const formatter = new Intl.NumberFormat(idioma, options);
-const formatterUSD = new Intl.NumberFormat(idiomaUSD, optionsUSD);
-
 const Installments = ({ currentInstallment, totalInstallment = 0 }) => {
   if (totalInstallment === 0) {
     return (
@@ -154,14 +137,15 @@ const Installments = ({ currentInstallment, totalInstallment = 0 }) => {
 };
 
 const DebtCard = ({ debt }) => {
+  const { formatCurrency } = useCurrencyFormatter();
   return (
-    <div style={{ padding: 10, width: 100 }}>
+    <div style={{ width: 100 }}>
       <div
         style={{
           fontSize: 16,
         }}
       >
-        {formatter.format(debt.amount)}
+        {formatCurrency(debt.amount)}
       </div>
       <Installments
         currentInstallment={debt.currentInstallment}
@@ -174,13 +158,13 @@ const DebtCard = ({ debt }) => {
 const august = [new Debt(1234)];
 const september = [new Debt(5666), new Debt(15666), new Debt(8048.63)];
 const debts = amounts.map(({ amount, installments, recursive }) => {
-  // return recursive ? new RecursiveDebt(amount) : new Debt(amount, installments);
-  return new Debt(amount, installments);
+  return recursive ? new RecursiveDebt(amount) : new Debt(amount, installments);
 });
 
 function App() {
-  console.log("App render");
-
+  const { asUSD, txUSD } = useCurrencyConversion();
+  const { formatCurrency } = useCurrencyFormatter();
+  console.log(formatCurrency);
   const debtsByMonths = {
     "Julio 2023": debts.map((debt) => {
       debt.periodName = "Julio 2023";
@@ -195,7 +179,6 @@ function App() {
       return debt;
     }),
   };
-
   const setByMonth = (debt) => {
     if (!debtsByMonths[debt.periodName]) {
       debtsByMonths[debt.periodName] = [];
@@ -207,20 +190,6 @@ function App() {
       return debtsByMonths[monthLabel];
     }
     return [];
-  };
-  const [state, setState] = useState();
-  useEffect(() => {
-    fetch("https://api.bluelytics.com.ar/v2/latest")
-      .then((res) => res.json())
-      .then(setState);
-  }, []);
-
-  const asUSD = (amount, success, empty) => {
-    if (state?.blue?.value_avg) {
-      return success(amount / state?.blue?.value_avg);
-    } else {
-    }
-    return empty(amount);
   };
   const months = [
     "Julio 2023",
@@ -237,42 +206,55 @@ function App() {
     "Junio 2024",
   ];
   return (
-    <div className="App">
-      <header className="App-header">
-        {months.map((month) => {
-          let totalByMonth = 0;
-          const rows2 = getByMonth(month).map((debt, index) => {
-            totalByMonth += debt.amount;
-            debt.setNext(setByMonth);
-            return debt.amount > 0 ? (
-              <DebtCard key={index} debt={debt} />
-            ) : null;
-          });
-          return (
-            <div key={month}>
-              <h2>{month}</h2>
+    <div
+      style={{
+        padding: 10,
+      }}
+    >
+      <header>{`1 USD = ${txUSD}`}</header>
+      {months.map((month) => {
+        let totalByMonth = 0;
+        const rows = getByMonth(month).map((debt, index) => {
+          totalByMonth += debt.amount;
+          debt.setNext(setByMonth);
+          return debt.amount > 0 ? <DebtCard key={index} debt={debt} /> : null;
+        });
+        return (
+          <div key={month}>
+            <h2>{month}</h2>
+            <div style={{ padding: 10 }}>
               <div
                 style={{
                   display: "flex",
                   flexWrap: "wrap",
+                  gap: 10,
                 }}
               >
-                {rows2}
+                {rows}
               </div>
-              <div style={{ display: "flex", gap: 10 }}>
-                <div>Pesos: {formatter.format(totalByMonth)}</div>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 10,
+                  fontWeight: 700,
+                  fontSize: 24,
+                  marginTop: 10,
+                  flexDirection: "column",
+                }}
+              >
+                <div>Pesos: {formatCurrency(totalByMonth, "ARS")}</div>
                 <div>
                   {asUSD(
                     totalByMonth,
-                    (amount) => `USD: ${formatterUSD.format(amount)}`,
+                    (amount) => `USD: ${formatCurrency(amount)}`,
                     () => ""
                   )}
                 </div>
               </div>
             </div>
-          );
-        })}
-      </header>
+          </div>
+        );
+      })}
     </div>
   );
 }

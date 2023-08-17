@@ -45,7 +45,6 @@ class Debt {
     this.periodName = periodName;
   }
   setNext(setByMonth) {
-    // console.log(this.period(1));
     if (this.period(1).amount > 0) {
       setByMonth(this.period(1));
     }
