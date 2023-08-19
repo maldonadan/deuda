@@ -74,7 +74,7 @@ class Debt {
     let newState = {
       ...state,
       [this.month]: [
-        ...state[this.month],
+        ...(state[this.month] || []),
         {
           amount: this.amount,
         },

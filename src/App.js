@@ -2,7 +2,6 @@ import { useState } from "react";
 import "./App.css";
 import Debt from "./Debt";
 import { useForm } from "react-hook-form";
-import { useCurrencyConversion } from "./useCurrencyConversion";
 import { useCurrencyFormatter } from "./useCurrencyFormatter";
 
 const Installments = ({ currentInstallment, totalInstallment = 0 }) => {
@@ -56,15 +55,35 @@ function App() {
   });
   const [state, setState] = useState({
     "Julio 2023": [],
-    "Agosto 2023": [
-      {
-        amount: 1000,
-      },
-    ],
+    "Agosto 2023": [],
     "Septiembre 2023": [],
   });
+
+  const meses = [
+    "Enero",
+    "Febrero",
+    "Marzo",
+    "Abril",
+    "Mayo",
+    "Junio",
+    "Julio",
+    "Agosto",
+    "Septiembre",
+    "Octubre",
+    "Noviembre",
+    "Diciembre",
+  ];
+
+  function compararFechasDescendente(a, b) {
+    const fechaA = new Date(a.split(" ")[1], meses.indexOf(a.split(" ")[0]), 1);
+    const fechaB = new Date(b.split(" ")[1], meses.indexOf(b.split(" ")[0]), 1);
+
+    return fechaA - fechaB;
+  }
   const months = Object.keys(state);
-  const { txUSD } = useCurrencyConversion();
+
+  const arrayOrdenado = months.sort(compararFechasDescendente);
+
   const addDebt = (
     month,
     amount,
@@ -98,19 +117,14 @@ function App() {
         padding: 10,
       }}
     >
-      <header>
-        <span>{`1 USD = ${txUSD}`}</span>
-        <div>
-          <DebtForm
-            onSubmit={(data) => {
-              addDebtHandler(data);
-            }}
-            debtFormValuesState={debtFormValuesState}
-            setDebtFormValuesState={setDebtFormValuesState}
-          />
-        </div>
-      </header>
-      {months.map((month) => {
+      <DebtForm
+        onSubmit={(data) => {
+          addDebtHandler(data);
+        }}
+        debtFormValuesState={debtFormValuesState}
+        setDebtFormValuesState={setDebtFormValuesState}
+      />
+      {arrayOrdenado.map((month) => {
         const rows = getDebtsByMonth(month).map((debt, index) => (
           <DebtCard key={index} debt={debt} />
         ));
