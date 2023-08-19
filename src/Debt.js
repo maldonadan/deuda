@@ -37,41 +37,57 @@ function siguienteMes(input) {
 
 class Debt {
   amount = 0;
-  constructor(amount, installments = [0, 0], periodName = "") {
+  constructor(amount, installments = [0, 0], month = "") {
     const [current, total] = installments;
     this.amount = amount;
     this.currentInstallment = current;
     this.totalInstallment = total;
-    this.periodName = periodName;
+    this.month = month;
   }
-  setNext(setByMonth) {
-    if (this.period(1).amount > 0) {
-      setByMonth(this.period(1));
+  populate(state, month, currentInstallment, totalInstallment) {
+    if (currentInstallment <= totalInstallment) {
+      return this.populate(
+        {
+          ...state,
+          [month]: [
+            ...(state[month] || []),
+            {
+              amount: this.amount,
+            },
+          ],
+        },
+        siguienteMes(month),
+        currentInstallment + 1,
+        totalInstallment
+      );
+    } else {
+      return state;
     }
   }
-  next() {
-    if (this.currentInstallment < this.totalInstallment) {
-      return new Debt(this.amount, [
-        this.currentInstallment + 1,
-        this.totalInstallment,
-      ]);
-    }
-    return new Debt(0, [this.currentInstallment, this.totalInstallment]);
-  }
-  period(numberOfPeriods) {
-    const debt = new Debt(
-      this.amount,
-      [this.currentInstallment + numberOfPeriods, this.totalInstallment],
-      siguienteMes(this.periodName)
+  next(state) {
+    const installments = this.populate(
+      {},
+      this.month,
+      this.currentInstallment,
+      this.totalInstallment
     );
-    if (debt.currentInstallment <= debt.totalInstallment) {
-      return debt;
-    }
-    return new Debt(
-      0,
-      [this.totalInstallment, this.totalInstallment],
-      siguienteMes(this.periodName)
-    );
+    let newState = {
+      ...state,
+      [this.month]: [
+        ...state[this.month],
+        {
+          amount: this.amount,
+        },
+      ],
+    };
+    Object.keys(installments).forEach((month) => {
+      const elemento = installments[month];
+      newState = {
+        ...newState,
+        [month]: [...(state[month] || []), ...elemento],
+      };
+    });
+    return newState;
   }
 }
 
