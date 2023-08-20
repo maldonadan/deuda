@@ -118,8 +118,8 @@ function App() {
         setDebtFormValuesState={setDebtFormValuesState}
       />
       <LineChart
-        height={400}
-        series={[{ data: lineData, label: "pv" }]}
+        height={250}
+        series={[{ data: lineData }]}
         xAxis={[{ scaleType: "point", data: arrayOrdenado }]}
       />
       {arrayOrdenado.map((month) => {
@@ -176,6 +176,14 @@ function DebtForm({ debtFormValuesState, setDebtFormValuesState, onSubmit }) {
       <div>
         <button type="submit" onClick={showDebtForm}>
           Add
+        </button>
+        <button
+          type="submit"
+          onClick={() => {
+            localStorage.clear();
+          }}
+        >
+          Clean
         </button>
       </div>
     );

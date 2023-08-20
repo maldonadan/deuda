@@ -93,7 +93,6 @@ class Debt {
       ],
     });
     let newState = addDebtToMonth(this.month, this);
-    console.log("newState: ", newState);
 
     if (this.currentInstallment !== this.totalInstallment) {
       const installments = this.populate(
@@ -102,7 +101,6 @@ class Debt {
         this.currentInstallment,
         this.totalInstallment
       );
-      console.log("installments: ", installments);
       Object.keys(installments).forEach((month) => {
         const elementos = installments[month];
         newState = {
