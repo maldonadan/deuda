@@ -37,11 +37,14 @@ function siguienteMes(input) {
 
 class Debt {
   amount = 0;
-  constructor(amount, installments = [0, 0], month = "") {
-    const [current, total] = installments;
-    this.amount = amount;
-    this.currentInstallment = current;
-    this.totalInstallment = total;
+  constructor(month = "", amount, currentInstallment, totalInstallment) {
+    this.amount = Number.isFinite(parseInt(amount)) ? parseInt(amount) : 0;
+    this.currentInstallment = Number.isFinite(parseInt(currentInstallment))
+      ? parseInt(currentInstallment)
+      : 0;
+    this.totalInstallment = Number.isFinite(parseInt(totalInstallment))
+      ? parseInt(totalInstallment)
+      : 0;
     this.month = month;
   }
   populate(state, month, currentInstallment, totalInstallment) {
@@ -53,6 +56,8 @@ class Debt {
             ...(state[month] || []),
             {
               amount: this.amount,
+              currentInstallment: currentInstallment,
+              totalInstallment: totalInstallment,
             },
           ],
         },
@@ -77,6 +82,8 @@ class Debt {
         ...(state[this.month] || []),
         {
           amount: this.amount,
+          currentInstallment: this.currentInstallment,
+          totalInstallment: this.totalInstallment,
         },
       ],
     };

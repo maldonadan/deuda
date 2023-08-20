@@ -3,6 +3,7 @@ import "./App.css";
 import Debt from "./Debt";
 import { useForm } from "react-hook-form";
 import { useCurrencyFormatter } from "./useCurrencyFormatter";
+import { useCurrencyConversion } from "./useCurrencyConversion";
 
 const Installments = ({ currentInstallment, totalInstallment = 0 }) => {
   if (totalInstallment === 0) {
@@ -50,14 +51,19 @@ const DebtCard = ({ debt }) => {
 };
 
 function App() {
+  const { asUSD } = useCurrencyConversion();
+  const { formatCurrency } = useCurrencyFormatter();
   const [debtFormValuesState, setDebtFormValuesState] = useState({
     showForm: false,
   });
-  const [state, setState] = useState({
-    "Julio 2023": [],
-    "Agosto 2023": [],
-    "Septiembre 2023": [],
-  });
+  const initialState = localStorage.getItem("debts")
+    ? JSON.parse(localStorage.getItem("debts"))
+    : {
+        "Julio 2023": [],
+        "Agosto 2023": [],
+        "Septiembre 2023": [],
+      };
+  const [state, setState] = useState(initialState);
 
   const meses = [
     "Enero",
@@ -84,21 +90,11 @@ function App() {
 
   const arrayOrdenado = months.sort(compararFechasDescendente);
 
-  const addDebt = (
-    month,
-    amount,
-    currentInstallment = 0,
-    totalInstallment = 0
-  ) => {
-    setState((state) => {
-      const debt = new Debt(
-        parseFloat(amount),
-        [parseInt(currentInstallment), parseInt(totalInstallment)],
-        month
-      );
-      const myNewState = debt.next(state);
-      return myNewState;
-    });
+  const addDebt = (month, amount, currentInstallment, totalInstallment) => {
+    const debt = new Debt(month, amount, currentInstallment, totalInstallment);
+    const myNewState = debt.next(state);
+    localStorage.setItem("debts", JSON.stringify(myNewState));
+    setState(myNewState);
   };
   const addDebtHandler = (debtFormValues) => {
     addDebt(
@@ -125,12 +121,24 @@ function App() {
         setDebtFormValuesState={setDebtFormValuesState}
       />
       {arrayOrdenado.map((month) => {
-        const rows = getDebtsByMonth(month).map((debt, index) => (
-          <DebtCard key={index} debt={debt} />
-        ));
+        let totalByMonth = 0;
+        const rows = getDebtsByMonth(month).map((debt, index) => {
+          totalByMonth += debt.amount;
+          return <DebtCard key={index} debt={debt} />;
+        });
         return (
           <div key={month}>
-            <h2>{month}</h2>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <h2>{month}</h2>
+              <div>ARS: {formatCurrency(totalByMonth, "ARS")}</div>
+              <div>
+                {asUSD(
+                  totalByMonth,
+                  (amount) => `USD: ${formatCurrency(amount)}`,
+                  () => ""
+                )}
+              </div>
+            </div>
             <div style={{ padding: 10 }}>
               <div
                 style={{
