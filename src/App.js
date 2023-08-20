@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import Debt from "./Debt";
+import { LineChart } from "@mui/x-charts/LineChart";
 import { useForm } from "react-hook-form";
 import { useCurrencyFormatter } from "./useCurrencyFormatter";
 import { useCurrencyConversion } from "./useCurrencyConversion";
@@ -98,6 +99,11 @@ function App() {
   const getDebtsByMonth = (month) => {
     return state[month] || [];
   };
+  const lineData = arrayOrdenado.map((month) => {
+    return getDebtsByMonth(month).reduce((acc, debt) => {
+      return acc + debt.amount;
+    }, 0);
+  });
   return (
     <div
       style={{
@@ -110,6 +116,11 @@ function App() {
         }}
         debtFormValuesState={debtFormValuesState}
         setDebtFormValuesState={setDebtFormValuesState}
+      />
+      <LineChart
+        height={400}
+        series={[{ data: lineData, label: "pv" }]}
+        xAxis={[{ scaleType: "point", data: arrayOrdenado }]}
       />
       {arrayOrdenado.map((month) => {
         let totalByMonth = 0;
