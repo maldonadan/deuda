@@ -70,30 +70,47 @@ class Debt {
     }
   }
   next(state) {
-    const installments = this.populate(
-      {},
-      this.month,
-      this.currentInstallment,
-      this.totalInstallment
-    );
-    let newState = {
+    // let newState = {
+    //   ...state,
+    //   [this.month]: [
+    //     ...(state[this.month] || []),
+    //     {
+    //       amount: this.amount,
+    //       currentInstallment: this.currentInstallment,
+    //       totalInstallment: this.totalInstallment,
+    //     },
+    //   ],
+    // };
+    const addDebtToMonth = (month, debt) => ({
       ...state,
-      [this.month]: [
-        ...(state[this.month] || []),
+      [month]: [
+        ...(state[month] || []),
         {
-          amount: this.amount,
-          currentInstallment: this.currentInstallment,
-          totalInstallment: this.totalInstallment,
+          amount: debt.amount,
+          currentInstallment: debt.currentInstallment,
+          totalInstallment: debt.totalInstallment,
         },
       ],
-    };
-    Object.keys(installments).forEach((month) => {
-      const elemento = installments[month];
-      newState = {
-        ...newState,
-        [month]: [...(state[month] || []), ...elemento],
-      };
     });
+    let newState = addDebtToMonth(this.month, this);
+    console.log("newState: ", newState);
+
+    if (this.currentInstallment !== this.totalInstallment) {
+      const installments = this.populate(
+        {},
+        this.month,
+        this.currentInstallment,
+        this.totalInstallment
+      );
+      console.log("installments: ", installments);
+      Object.keys(installments).forEach((month) => {
+        const elementos = installments[month];
+        newState = {
+          ...newState,
+          [month]: [...(newState[month] || []), ...elementos],
+        };
+      });
+    }
     return newState;
   }
 }

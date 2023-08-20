@@ -5,25 +5,16 @@ import { useForm } from "react-hook-form";
 import { useCurrencyFormatter } from "./useCurrencyFormatter";
 import { useCurrencyConversion } from "./useCurrencyConversion";
 
-const Installments = ({ currentInstallment, totalInstallment = 0 }) => {
-  if (totalInstallment === 0) {
-    return (
-      <div
-        style={{
-          fontSize: 14,
-        }}
-      >
-        Pago único
-      </div>
-    );
-  }
+const Installments = ({ currentInstallment = 0, totalInstallment = 0 }) => {
   return (
     <div
       style={{
         fontSize: 14,
       }}
     >
-      {currentInstallment}/{totalInstallment}
+      {Number.isFinite(currentInstallment) &&
+        Number.isFinite(totalInstallment) &&
+        `${currentInstallment}/${totalInstallment}`}
     </div>
   );
 };
