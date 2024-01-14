@@ -8,8 +8,8 @@ const FIRST_DAY_OF_OCTOBER = "2023-10-01T00:00:00Z";
 const FIRST_DAY_OF_NOVEMBER = "2023-11-01T00:00:00Z";
 const FIRST_DAY_OF_DECEMBER = "2023-12-01T00:00:00Z";
 const FIRST_DAY_OF_JANUARY = "2024-01-01T00:00:00Z";
-// const AMOUNT_PER_HOUR = 5000;
 const AMOUNT_PER_HOUR = 8000;
+// const AMOUNT_PER_HOUR = 5000;
 
 const Installments = ({ currentInstallment = 0, totalInstallment = 0 }) => {
   return (
