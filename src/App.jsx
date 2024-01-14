@@ -25,6 +25,8 @@ const Installments = ({ currentInstallment = 0, totalInstallment = 0 }) => {
   );
 };
 
+const hola = "sdasda";
+
 const DebtCard = ({ debt }) => {
   const { formatCurrency } = useCurrencyFormatter();
   if (debt.amount === 0) {
